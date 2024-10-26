@@ -3,7 +3,7 @@ import parseRequestBody from './parser';
 import {IncomingMessage, ServerResponse, createServer} from "http";
 import { parse } from 'url';
 import {v4 as uuidv4, validate} from 'uuid';
-import {getAllusers, getUserById} from "./controllers/userController";
+import {createUser, getAllusers, getUserById} from "./controllers/userController";
 
 const headers = {
   'Content-type': 'application/json'
@@ -40,6 +40,16 @@ const requestListener = async (req: IncomingMessage, res: ServerResponse): Promi
         }
       }
     }
+
+    if (method === 'POST' && api_user_url) {
+      const body = await parseRequestBody(req);
+      console.log(body);
+      const new_user = createUser(body.username, body.age, body.hobbies);
+
+      res.writeHead(201, headers);
+      res.end(JSON.stringify(new_user));
+    }
+
   }
   catch (err: any){ // implement errors.
      if (err.message.includes('is invalid')) {

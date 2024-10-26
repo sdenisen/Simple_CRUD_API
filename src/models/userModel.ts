@@ -16,4 +16,9 @@ export class User {
      static getById(id: string): InterfaceUser | null {
         return user_items.find(user => user.id === id) || null;
     }
+
+    static create(item: InterfaceUser): InterfaceUser{
+        user_items.push(item);
+        return item;
+    }
 }
