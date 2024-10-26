@@ -3,7 +3,7 @@ import parseRequestBody from './parser';
 import {IncomingMessage, ServerResponse, createServer} from "http";
 import {parse} from 'url';
 import {v4 as uuidv4, validate} from 'uuid';
-import {createUser, getAllusers, getUserById, updateUser} from "./controllers/userController";
+import {createUser, getAllusers, getUserById, updateUser, deleteUser} from "./controllers/userController";
 
 const headers = {
     'Content-type': 'application/json'
@@ -60,92 +60,24 @@ const requestListener = async (req: IncomingMessage, res: ServerResponse): Promi
             }
         }
 
+        if (req.method === 'DELETE' && user_uuid_url) {
+            const updatedUser = deleteUser(user_uuid_url);
+            res.writeHead(204, headers);
+            res.end(JSON.stringify(updatedUser));
+        }
+
     } catch (err: any) { // implement errors.
         if (err.message.includes('is invalid')) {
             res.writeHead(400, headers);
             res.end(JSON.stringify({message: err.message}));
             return;
         }
-        res.writeHead(500, headers);
-        res.end(JSON.stringify({message: 'Bad request.'}));
+        if (err.message.includes('The record doesn\'t exist.')) {
+            res.writeHead(404, headers);
+            res.end(JSON.stringify({message: 'Bad request.'}));
+        }
     }
 
-    // const parsedUrl = parse(req.url || '', true);
-    // const { pathname, query } = parsedUrl;
-    //
-    // if (req.method === 'POST' && pathname === '/items') {
-    //   try {
-    //     const body = await parseRequestBody(req);
-    //     const user: InterfaceUser = {
-    //         id: uuidv4(),
-    //         username: body.name,
-    //         age: body.age,
-    //         hobbies: body.hobbies,
-    //     };
-    //     user_items.push(user);
-    //     res.writeHead(201, { 'Content-Type': 'application/json' });
-    //     res.end(JSON.stringify(user));
-    //   } catch (error) {
-    //     if (error instanceof Error){
-    //       res.writeHead(400, { 'Content-Type': 'application/json' });
-    //       res.end(JSON.stringify({ message: error.message }));
-    //     }
-    //   }
-    //
-    //
-    // } else if (req.method === 'GET' && pathname === 'api/users') {
-    //   res.writeHead(200, { 'Content-Type': 'application/json' });
-    //   res.end(JSON.stringify(user_items));
-    //
-    // } else if (req.method === 'GET' && pathname?.startsWith('/items/')) {
-    //   const id = pathname.split('/') [2];
-    //   const user = user_items.find((i) => i.id === id);
-    //   if (user) {
-    //     res.writeHead(200, { 'Content-Type': 'application/json' });
-    //     res.end(JSON.stringify(user));
-    //   } else {
-    //     res.writeHead(404, { 'Content-Type': 'application/json' });
-    //     res.end(JSON.stringify({ message: 'Item not found' }));
-    //   }
-    //
-    // } else if (req.method === 'PUT' && pathname?.startsWith('/items/')) {
-    //   const id = pathname.split('/')[2];
-    //   const userIndex = user_items.findIndex((i) => i.id === id);
-    //   if (userIndex !== -1) {
-    //     try {
-    //       const body = await parseRequestBody(req);
-    //       user_items[userIndex].username = body.username;
-    //       user_items[userIndex].age = body.age;
-    //       user_items[userIndex].hobbies = body.hobbies;
-    //       res.writeHead(200, { 'Content-Type': 'application/json' });
-    //       res.end(JSON.stringify(user_items[userIndex]));
-    //     } catch (error) {
-    //       if (error instanceof Error) {
-    //         res.writeHead(400, { 'Content-Type': 'application/json' });
-    //         res.end(JSON.stringify({ message: error.message }));
-    //       }
-    //     }
-    //   } else {
-    //     res.writeHead(404, { 'Content-Type': 'application/json' });
-    //     res.end(JSON.stringify({ message: 'Item not found' }));
-    //   }
-    //
-    //
-    // } else if (req.method === 'DELETE' && pathname?.startsWith('/items/')) {
-    //   const id = pathname.split('/')[2];
-    //   const userIndex = user_items.findIndex((i) => i.id === id);
-    //   if (userIndex !== -1) {
-    //     const deletedItem = user_items.splice(userIndex, 1);
-    //     res.writeHead(200, { 'Content-Type': 'application/json' });
-    //     res.end(JSON.stringify(deletedItem[0]));
-    //   } else {
-    //     res.writeHead(404, { 'Content-Type': 'application/json' });
-    //     res.end(JSON.stringify({ message: 'Item not found' }));
-    //   }
-    // } else {
-    //   res.writeHead(404, { 'Content-Type': 'application/json' });
-    //   res.end(JSON.stringify({ message: 'Route not found' }));
-    // }
 };
 
 const server = createServer(requestListener);

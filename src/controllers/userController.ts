@@ -15,7 +15,7 @@ export const getUserById = (userId: string): InterfaceUser | null => {
 
 export const createUser = (userName: string, age: number, hobbies: string[]): InterfaceUser | null => {
 
-    if (!userName || !age || !hobbies){
+    if (!userName || !age || !hobbies) {
         throw new Error("Missed required fields.");
     }
 
@@ -24,9 +24,18 @@ export const createUser = (userName: string, age: number, hobbies: string[]): In
 };
 
 export const updateUser = (userId: string, userName: string, age: number, hobbies: string[]): InterfaceUser | null => {
-    if (!validate(userId)){
+    if (!validate(userId)) {
         throw new Error(`${userId} is invalid`)
     }
 
     return User.update(userId, userName, age, hobbies);
 };
+
+export const deleteUser = (userId: string) => {
+    if (!validate(userId)) {
+        throw new Error(`${userId} is invalid`)
+    }
+
+    User.delete(userId);
+};
+
