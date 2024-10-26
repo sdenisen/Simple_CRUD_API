@@ -1,19 +1,79 @@
-import User from './user'
+import InterfaceUser from './models/interface_user'
 import parseRequestBody from './parser';
 import {IncomingMessage, ServerResponse, createServer} from "http";
 import { parse } from 'url';
-import { v4 as uuidv4 } from 'uuid';
+import {v4 as uuidv4, validate} from 'uuid';
 
-let user_items: User[] = [];
+
+
+const headers = {
+  'Content-type': 'application/json'
+}
 
 const requestListener = async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
+  try{
+    const method = req.method;
+    const parsed_url = parse(req.url || '', true);
+    const { pathname, query } = parsed_url;
+
+    else if (req.method === 'GET' && pathname === 'api/users') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(user_items));
+
+  }
+
+    if (method === 'GET') {
+      if (req.url?.includes('/api/users')) {
+        const partsPath = req.url.split('/').filter(i => !!i);
+
+        if (partsPath.length === 3) {
+          const userId = partsPath[2];
+
+          if (!validate(userId)) {
+            res.writeHead(400, headers);
+            res.end(JSON.stringify({ message: `${userId} is invalid` }));
+
+            return;
+          }
+
+          const user = db.findUser(userId);
+
+          if (!user) {
+            res.writeHead(404, headers);
+            res.end(JSON.stringify({ message: `${userId} didn't find` }));
+
+            return;
+          }
+
+          res.writeHead(200, headers);
+          res.end(JSON.stringify(user));
+
+          return;
+        }
+
+        const users = db.getUsers();
+        res.writeHead(200, headers);
+        res.end(JSON.stringify(users));
+
+        return;
+      }
+    }
+
+
+
+  }
+  catch (err){
+    res.writeHead(500, headers);
+    res.end(JSON.stringify({message:'Bad request.'}));
+  }
+
   const parsedUrl = parse(req.url || '', true);
   const { pathname, query } = parsedUrl;
 
   if (req.method === 'POST' && pathname === '/items') {
     try {
       const body = await parseRequestBody(req);
-      const user: User = {
+      const user: InterfaceUser = {
           id: uuidv4(),
           username: body.name,
           age: body.age,
@@ -30,7 +90,7 @@ const requestListener = async (req: IncomingMessage, res: ServerResponse): Promi
     }
 
 
-  } else if (req.method === 'GET' && pathname === '/items') {
+  } else if (req.method === 'GET' && pathname === 'api/users') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(user_items));
 
