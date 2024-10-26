@@ -3,7 +3,7 @@ import parseRequestBody from './parser';
 import {IncomingMessage, ServerResponse, createServer} from "http";
 import { parse } from 'url';
 import {v4 as uuidv4, validate} from 'uuid';
-import {getAllusers} from "./controllers/userController";
+import {getAllusers, getUserById} from "./controllers/userController";
 
 const headers = {
   'Content-type': 'application/json'
@@ -14,54 +14,39 @@ const requestListener = async (req: IncomingMessage, res: ServerResponse): Promi
     const method = req.method;
     const parsed_url = parse(req.url || '', true);
     const { pathname, query } = parsed_url;
+    const match_path = pathname?.match('\/api\/users(?:\/*)([a-f0-9-]+)?');
 
-    if (req.method === 'GET' && pathname === '/api/users') {
-      res.writeHead(200, headers);
-      const user_items = getAllusers();
-      res.end(JSON.stringify(user_items));
+    if (match_path === undefined || match_path === null){
+      throw new Error(`Bad request`);
+    }
+
+    const api_user_url = match_path[0];
+    const user_uuid_url = match_path[1];
+
+    if (method === 'GET' && api_user_url) {
+      if (user_uuid_url === undefined){
+        res.writeHead(200, headers);
+        const user_items = getAllusers();
+        res.end(JSON.stringify(user_items));
+      }
+      else{
+        const user = getUserById(user_uuid_url);
+        if (user){
+          res.writeHead(200, headers);
+          res.end(JSON.stringify(user));
+        } else {
+          res.writeHead(404, headers);
+          res.end(JSON.stringify({ message: 'User not found' }));
+        }
+      }
+    }
   }
-
-    // if (method === 'GET') {
-    //   if (req.url?.includes('/api/users')) {
-    //     const partsPath = req.url.split('/').filter(i => !!i);
-    //
-    //     if (partsPath.length === 3) {
-    //       const userId = partsPath[2];
-    //
-    //       if (!validate(userId)) {
-    //         res.writeHead(400, headers);
-    //         res.end(JSON.stringify({ message: `${userId} is invalid` }));
-    //
-    //         return;
-    //       }
-    //
-    //       const user = db.findUser(userId);
-    //
-    //       if (!user) {
-    //         res.writeHead(404, headers);
-    //         res.end(JSON.stringify({ message: `${userId} didn't find` }));
-    //
-    //         return;
-    //       }
-    //
-    //       res.writeHead(200, headers);
-    //       res.end(JSON.stringify(user));
-    //
-    //       return;
-    //     }
-    //
-    //     const users = db.getUsers();
-    //     res.writeHead(200, headers);
-    //     res.end(JSON.stringify(users));
-    //
-    //     return;
-    //   }
-    // }
-
-
-
-  }
-  catch (err){
+  catch (err: any){ // implement errors.
+     if (err.message.includes('is invalid')) {
+       res.writeHead(400, headers);
+       res.end(JSON.stringify({ message: err.message }));
+       return;
+     }
     res.writeHead(500, headers);
     res.end(JSON.stringify({message:'Bad request.'}));
   }
