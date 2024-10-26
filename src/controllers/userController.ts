@@ -22,3 +22,11 @@ export const createUser = (userName: string, age: number, hobbies: string[]): In
     const newUser: InterfaceUser = {id: uuidv4(), username: userName, age: age, hobbies: hobbies};
     return User.create(newUser);
 };
+
+export const updateUser = (userId: string, userName: string, age: number, hobbies: string[]): InterfaceUser | null => {
+    if (!validate(userId)){
+        throw new Error(`${userId} is invalid`)
+    }
+
+    return User.update(userId, userName, age, hobbies);
+};
