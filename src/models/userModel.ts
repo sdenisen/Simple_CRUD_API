@@ -1,11 +1,6 @@
 import InterfaceUser from "./interfaceUser";
 
-let user_items: InterfaceUser[] = [{
-    id: "123e4567-e89b-12d3-a456-426614174000",
-    username: "sadfaxcvzxvczxv",
-    age: 10,
-    hobbies: ["asdfasdf", "czxvzcxv", "fdghdfgh"]
-}];
+let user_items: InterfaceUser[] = [];
 
 
 export class User {
