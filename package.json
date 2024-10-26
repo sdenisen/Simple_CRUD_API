@@ -4,7 +4,9 @@
   "description": "Simple CRUD API using in-memory database with Node.js",
   "main": "src/server.ts",
   "scripts": {
-    "start": "ts-node-dev src/server.ts"
+    "start:dev": "ts-node-dev src/server.ts",
+    "build": "tsc",
+    "start:prod": "npm run build && node dist/server.js"
   },
   "dependencies": {
     "uuid": "^9.0.0"
