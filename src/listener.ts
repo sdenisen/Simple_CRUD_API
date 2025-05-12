@@ -70,7 +70,6 @@ export const requestListener = async (req: IncomingMessage, res: ServerResponse)
             if (user_uuid_url === undefined || !validate(user_uuid_url)){
                 throw new Error(`UUID is invalid: ${user_uuid_url}`);
             }
-            console.log("we are here...")
             deleteUser(user_uuid_url);
             res.writeHead(204, headers);
             res.end();
