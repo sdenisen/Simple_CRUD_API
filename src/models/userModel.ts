@@ -17,17 +17,11 @@ export class User {
         return item;
     }
 
-    static update(userId: string, userName: string, age: number, hobbies: string[]): InterfaceUser | null {
-        const ind = user_items.findIndex(user => user.id === userId);
-        if (ind === -1) {
-            return null
-        }
-
-        user_items[ind].hobbies = hobbies;
-        user_items[ind].age = age;
-        user_items[ind].username = userName;
-
-        return user_items[ind];
+    static update(user_to_update: InterfaceUser): InterfaceUser | null {
+        const idx = user_items.findIndex( u => {u.id === user_to_update.id});
+        user_items[idx] = user_to_update;
+        console.log(user_items[idx]);
+        return user_items[idx];
     }
 
     static delete(userId: string) {

@@ -7,9 +7,6 @@ export const getAllusers = (): InterfaceUser[] => {
 }
 
 export const getUserById = (userId: string): InterfaceUser | null => {
-    if (!validate(userId)) {
-        throw new Error(`${userId} is invalid`);
-    }
     return User.getById(userId);
 };
 
@@ -20,17 +17,35 @@ export const createUser = (body: any): InterfaceUser | null => {
         throw new Error("Request does not contain required fields");
     }
 
-    console.log("we are here...")
     const newUser: InterfaceUser = {id: uuidv4(), username: result.username, age: result.age, hobbies: result.hobbies};
     return User.create(newUser);
 };
 
-export const updateUser = (userId: string, userName: string, age: number, hobbies: string[]): InterfaceUser | null => {
+export const updateUser = (userId: string, body: any): InterfaceUser | null => {
     if (!validate(userId)) {
         throw new Error(`${userId} is invalid`)
     }
 
-    return User.update(userId, userName, age, hobbies);
+    let user_to_update = User.getById(userId);
+    if (!user_to_update){
+        throw new Error("The record doesn\'t exist.")
+    }
+    console.log(body);
+    const allowed_keys = ["id", "username", "age", "hobbies"];
+    const has_invalid_keys = Object.keys(body).some(key => !allowed_keys.includes(key));
+
+    if (has_invalid_keys ||
+        body["username"] && typeof body["username"] !== 'string' ||
+        body["age"] && typeof body["age"] !== 'number' ||
+        body["hobbies"] && !Array.isArray(body["hobbies"])
+    ){
+        throw new Error("Request contains unexpected or wrong fields");
+    }
+
+    user_to_update.username = body["username"] ? body["username"] : user_to_update.username;
+    user_to_update.age = body["age"] ? body["age"] : user_to_update.age;
+    user_to_update.hobbies = body["hobbies"] ? body["hobbies"] : user_to_update.hobbies;
+    return User.update(user_to_update);
 };
 
 export const deleteUser = (userId: string) => {

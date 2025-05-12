@@ -2,6 +2,7 @@ import parseRequestBody from './parser';
 import {IncomingMessage, ServerResponse} from "http";
 import {parse} from 'url';
 import {createUser, getAllusers, getUserById, updateUser, deleteUser} from "./controllers/userController";
+import {validate} from "uuid";
 
 const headers = {
     'Content-type': 'application/json'
@@ -11,7 +12,7 @@ export const requestListener = async (req: IncomingMessage, res: ServerResponse)
         const method = req.method;
         const parsed_url = parse(req.url || '', true);
         const {pathname, query} = parsed_url;
-        const match_path = pathname?.match('\/api\/users(?:\/*)([a-f0-9-]+)?');
+        const match_path = pathname?.match('\\/api\\/users(?:\\/*)(.*)?');
 
         if (match_path === undefined || match_path === null) {
             throw new Error(`Bad request`);
@@ -25,7 +26,12 @@ export const requestListener = async (req: IncomingMessage, res: ServerResponse)
                 res.writeHead(200, headers);
                 const user_items = getAllusers();
                 res.end(JSON.stringify(user_items));
-            } else {
+            }
+            else{
+                if (!validate(user_uuid_url)) {
+                    throw new Error(`${user_uuid_url} is invalid`);
+                }
+
                 const user = getUserById(user_uuid_url);
                 if (user) {
                     res.writeHead(200, headers);
@@ -47,10 +53,12 @@ export const requestListener = async (req: IncomingMessage, res: ServerResponse)
 
         if (method === 'PUT' && user_uuid_url) {
             const body = await parseRequestBody(req);
-            const updatedUser = updateUser(user_uuid_url, body.username, body.age, body.hobbies);
-            if (updatedUser) {
+
+            const result = updateUser(user_uuid_url, body);
+            console.log(result);
+            if (result) {
                 res.writeHead(200, headers);
-                res.end(JSON.stringify(updatedUser));
+                res.end(JSON.stringify(result));
             } else {
                 res.writeHead(404, headers);
                 res.end(JSON.stringify({message: `User with UUID ${user_uuid_url} wasn't found`}));
@@ -64,14 +72,15 @@ export const requestListener = async (req: IncomingMessage, res: ServerResponse)
         }
 
     } catch (err: any) { // implement errors.
-        if (err.message.includes('is invalid') || err.message.includes("required fields")) {
+        console.log(err.message);
+        if (err.message.includes('is invalid') || err.message.includes("fields")) {
             res.writeHead(400, headers);
             res.end(JSON.stringify({message: err.message}));
             return;
         }
         if (err.message.includes('The record doesn\'t exist.')) {
             res.writeHead(404, headers);
-            res.end(JSON.stringify({message: 'Bad request.'}));
+            res.end(JSON.stringify({message: err.message}));
         }
     }
 };
