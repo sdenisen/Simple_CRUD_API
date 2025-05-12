@@ -65,10 +65,16 @@ export const requestListener = async (req: IncomingMessage, res: ServerResponse)
             }
         }
 
-        if (req.method === 'DELETE' && user_uuid_url) {
-            const updatedUser = deleteUser(user_uuid_url);
+
+        if (method === 'DELETE' && api_user_url) {
+            if (user_uuid_url === undefined || !validate(user_uuid_url)){
+                throw new Error(`UUID is invalid: ${user_uuid_url}`);
+            }
+            console.log("we are here...")
+            deleteUser(user_uuid_url);
             res.writeHead(204, headers);
-            res.end(JSON.stringify(updatedUser));
+            res.end();
+
         }
 
     } catch (err: any) { // implement errors.

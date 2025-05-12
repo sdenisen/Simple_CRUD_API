@@ -29,8 +29,8 @@ export class User {
         if (ind === -1) {
             throw new Error("The record doesn't exist.");
         }
-
-        user_items = user_items.filter(item => item.id !== userId);
+        const idx = user_items.findIndex( u => {u.id === userId});
+        user_items.splice(idx, 1);
     }
 
     static convertObjToUser(obj: any): InterfaceUser | null{

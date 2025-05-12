@@ -49,10 +49,6 @@ export const updateUser = (userId: string, body: any): InterfaceUser | null => {
 };
 
 export const deleteUser = (userId: string) => {
-    if (!validate(userId)) {
-        throw new Error(`${userId} is invalid`)
-    }
-
     User.delete(userId);
 };
 
