@@ -38,4 +38,12 @@ export class User {
 
         user_items = user_items.filter(item => item.id !== userId);
     }
+
+    static convertObjToUser(obj: any): InterfaceUser | null{
+        if (typeof obj !== 'object' || obj === null) return null;
+        if (typeof obj["username"] !== 'string') return null;
+        if (typeof obj["age"] !== 'number') return null;
+        if (!Array.isArray(obj["hobbies"])) return null;
+        return obj as InterfaceUser
+    }
 }

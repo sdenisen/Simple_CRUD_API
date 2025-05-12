@@ -39,7 +39,7 @@ export const requestListener = async (req: IncomingMessage, res: ServerResponse)
 
         if (method === 'POST' && api_user_url) {
             const body = await parseRequestBody(req);
-            const new_user = createUser(body.username, body.age, body.hobbies);
+            const new_user = createUser(body);
 
             res.writeHead(201, headers);
             res.end(JSON.stringify(new_user));
@@ -64,7 +64,7 @@ export const requestListener = async (req: IncomingMessage, res: ServerResponse)
         }
 
     } catch (err: any) { // implement errors.
-        if (err.message.includes('is invalid')) {
+        if (err.message.includes('is invalid') || err.message.includes("required fields")) {
             res.writeHead(400, headers);
             res.end(JSON.stringify({message: err.message}));
             return;

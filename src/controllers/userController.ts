@@ -13,13 +13,15 @@ export const getUserById = (userId: string): InterfaceUser | null => {
     return User.getById(userId);
 };
 
-export const createUser = (userName: string, age: number, hobbies: string[]): InterfaceUser | null => {
-
-    if (!userName || !age || !hobbies) {
-        throw new Error("Missed required fields.");
+export const createUser = (body: any): InterfaceUser | null => {
+    const result = User.convertObjToUser(body);
+    console.log(result)
+    if (!result) {
+        throw new Error("Request does not contain required fields");
     }
 
-    const newUser: InterfaceUser = {id: uuidv4(), username: userName, age: age, hobbies: hobbies};
+    console.log("we are here...")
+    const newUser: InterfaceUser = {id: uuidv4(), username: result.username, age: result.age, hobbies: result.hobbies};
     return User.create(newUser);
 };
 
