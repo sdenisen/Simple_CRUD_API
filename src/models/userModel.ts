@@ -20,7 +20,6 @@ export class User {
     static update(user_to_update: InterfaceUser): InterfaceUser | null {
         const idx = user_items.findIndex( u => {u.id === user_to_update.id});
         user_items[idx] = user_to_update;
-        console.log(user_items[idx]);
         return user_items[idx];
     }
 

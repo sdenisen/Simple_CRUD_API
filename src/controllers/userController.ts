@@ -12,7 +12,6 @@ export const getUserById = (userId: string): InterfaceUser | null => {
 
 export const createUser = (body: any): InterfaceUser | null => {
     const result = User.convertObjToUser(body);
-    console.log(result)
     if (!result) {
         throw new Error("Request does not contain required fields");
     }
@@ -30,7 +29,6 @@ export const updateUser = (userId: string, body: any): InterfaceUser | null => {
     if (!user_to_update){
         throw new Error("The record doesn\'t exist.")
     }
-    console.log(body);
     const allowed_keys = ["id", "username", "age", "hobbies"];
     const has_invalid_keys = Object.keys(body).some(key => !allowed_keys.includes(key));
 
